@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--namespace:要是接口的全类名  -->
+<mapper namespace="com.mybatis.dao.EmployeeDao"> 
+<!-- <mapper namespace="com.mybatis.mapper.EmployeeMapper"> -->
+	<select id="selectById" parameterType="int" resultType="employee">
+		select * from Employees where employee_id = #{employee_id}
+	</select>
+	
+	<!-- parameterType:POJO
+		SQL当中不粗要写POJO，直接写POJO的property
+			POJO要有标准的getter和setter
+	 -->
+	<select id="selectByName" parameterType="employee" resultType="employee">
+		select * from employees
+		where first_name like '%${first_name}%'
+	</select>
+	
+	<!-- 
+	resultMap：定义POJO和数据检索字段的映射规则
+		type:全类名或者别名      ID：resultMap使用key值
+			id:key值
+			column：列名
+			property：POJO中的属性名，可以与column不同
+	 -->
+	
+	<resultMap type="employee" id="empMap">
+		<id column="employee_id" property="employee_id"/>
+		<result column="first_name" property="first_name"/>
+		<result column="last_name" property="last_name"/>
+		<result column="salary" property="salary"/>
+	</resultMap>
+	
+	<!-- resultMap的值是上面的id值 -->
+	<select id="selectResMap" parameterType="int" resultMap="empMap">
+		select * from employees
+		where employee_id = #{employee_id}
+	</select>
+
+	<!--动态sql-->
+	 <!-- sql字段 -->
+	 <sql id="selectContent">
+	 	select *
+		 from employees
+	 </sql>
+	
+	<select id="selectByCondition" parameterType="employee" resultMap="empMap">
+		<!-- 引用上面的sql字段 -->
+		<include refid="selectContent"></include>
+		<!-- select * from employees -->
+		<where>
+			<if test="employee_id != null and employee_id != 0">
+				and employee_id = #{employee_id}
+			</if>
+			<if test="first_name != null and first_name.trim() != ''">
+				and first_name = #{first_name}
+			</if>
+			<choose>
+				<when test="salary &lt; 5000">
+					<![CDATA[and salary < 5000]]>
+				</when>
+				<when test="salary &gt; 5000">
+					<![CDATA[and salary > 5000]]>
+				</when>
+				<otherwise>
+					<![CDATA[and salary = 5000]]>
+				</otherwise>
+			</choose>
+		</where>	
+	</select>
+	
+	<!-- employee_id为null或者为0、first_name为null或者为空、salary<5000时不更新 -->
+	<update id="updateEmployee" parameterType = "employee">
+		update Employees
+		<set>
+			<if test="first_name != null and first_name.trim() != ''">
+				first_name = #{first_name}
+			</if>
+			<if test = "last_name != null and last_name.trim() != ''">
+				last_name = #{last_name}
+			</if>
+			<if test="salary != null and salary > 5000">
+				salary= #{salary}
+			</if>
+			
+		</set>
+		where employee_id = #{employee_id}
+	</update>
+	
+		 
+	 <!-- forEach
+		1：list是一个POJO的属性
+		2：单独传一个list
+		3：传一个数组
+		数据类型：
+			传一个参数：简单用int，String，double
+			传多个参数：放到POJO，POJO包装类HashMap
+			
+		list，数组，POJO一个属性值==》一组数据（一个变量的多个值）
+	 -->
+	 <!-- 传入类型为POJO的list属性
+	 	parameterType：POJO的全类名或别名（在mySqlConfig.xml文件中配置）
+	 	test：条件判断用的为POJO的属性名称
+	 	collection：用的为POJO的属性名称
+	 	test所用与collection的值一般一致
+	  -->
+	 <select id="selectByEmplist" parameterType = "department" resultType="employee">
+	 	<!-- 引用sql字段 -->
+	 	<include refid="selectContent"></include>
+	 	<where>
+	 		<if test="empId != null and empId.size() != 0">
+	 			<!-- list位POJO属性时：
+	 				collection：属性名
+	 				item：开发人员定义的变量（foreach内）
+	 				index：表示当前循环到第几个【下标（从0开始，也是循环变量）】
+	 				例子：employee_id in (a,b,c,d)
+	 				open：循环开始的前链接内容（只有一次）==》employee_id in (
+	 				close：循环结束后连接的内容（只有一次）==》)
+	 				separator：循环以此定义的内容来分割
+	 			 -->
+	 			<foreach collection="empId" item="empIdx" index="index" 
+	 				open="and employee_id in (" close=")" separator=",">
+	 				#{empIdx}
+	 			</foreach>
+	 		</if>
+	 	</where> 
+	 </select>
+	 
+	 <!-- 传入类型为list
+	 	parameterType：固定用list
+	 	test：条件判断用list（固定值）
+	 	collection:用list（固定值）
+	  -->
+	  <select id="selectByEmplist1" parameterType = "list" resultType="employee">
+	 	<include refid="selectContent"></include>
+	 	<where>
+	 		<if test="list != null and list.size() != 0">
+	 			<foreach collection="list" item="empIdx" index="indexx" 
+	 				open="and employee_id in (" close=")" separator=",">
+	 				#{empIdx}
+	 			</foreach>
+	 		</if>
+	 	</where> 
+	 </select>
+	 
+	<!-- 传入类型为数组
+		parameterType：一般用Object[]，可传入类型比较多
+		test: 条件判断用array（固定值）
+		collection：用array（固定值）
+	 -->
+	  <select id="selectByEmplist2" parameterType = "Object[]" resultType="employee">
+	 	<include refid="selectContent"></include>
+	 	<where>
+	 		<if test="array != null and array.length != 0">
+	 			<foreach collection="array" item="empIdx" index="indexx" 
+	 				open="and employee_id in (" close=")" separator=",">
+	 				#{empIdx}
+	 			</foreach>
+	 		</if>
+	 	</where> 
+	 </select>
+	 
+	 <!-- prefixOverrides:链接标签（and，or，）在前
+	 	suffixOverrides ：链接标签在后-->
+	 <select id="selectByEmpList" parameterType="employee" resultType="employee">
+	 	select * from employees
+	 	<trim prefix="where" prefixOverrides="and" >
+	 		<if test="employee_id != null and employee_id != 0">
+				and employee_id = #{employee_id}
+			</if>
+	 		<if test="first_name != null and first_name.trim() != ''">
+				and first_name like '%${first_name}%'
+			</if>
+			<if test="last_name != null and last_name.trim() != ''">
+				and last_name like '%${last_name}%'
+			</if>
+	 	</trim>
+	 </select>
+	 <!-- 一对一查询 -->
+	 <resultMap type="employee" id="empDep">
+	 	<!--ID：key值  -->
+	 	<id column="employee_id" property="employee_id"/>
+		<result column="first_name" property="first_name"/>
+		<result column="last_name" property="last_name"/>
+		<result column="salary" property="salary"/> 
+		<!--association： 
+			property：resultMap中type指定的POJO的属性
+			javaType:全类名或别名
+		 -->
+		<association property="dept" javaType="department">
+			<id column="department_id" property="department_id"/>
+			<result column="department_name" property="department_name"/>
+			<result column="location_id" property="location_id"/>	
+		</association>		
+	 </resultMap>
+	 
+	 <select id="selectByEmpDept" parameterType="int" resultMap="empDep">
+	 	select emp.employee_id,
+	 			emp.first_name,
+	 			emp.last_name,
+	 			dept.department_id,
+	 			dept.department_name,
+	 			dept.location_id		
+	 	from employees emp,departments dept
+	 	where emp.department_id = dept.department_id 	
+	 		and emp.department_id = #{id}
+	 </select>
+	 
+	 
+	
+	
+  
+</mapper>

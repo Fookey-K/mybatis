@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace = "test">
+	<!-- 
+		id:每个sql的标识，在namespace下唯一
+		parameterType：表示传入的数据类型，可以是基本类型，也可以是引用类型
+		resultType：结果的返回类型（映射到department中去）==》返回结果的每一行
+		resultMap：结果的返回类型==》返回结果的每一行
+	
+	 -->
+	 
+	 
+	<select id="selectDeptById" parameterType="_int" resultType="com.mybatis.entity.Department">
+		select * from departments where department_id = #{id}
+	</select>
+	
+	<select id="selectDeptByLocation" resultType="com.mybatis.entity.Department">
+		select * from departments where location_id = #{location_id}
+	</select>
+	
+	<!-- 向数据库增加一条数据 -->
+	<insert id="insertDept" parameterType="com.mybatis.entity.Department">
+		<!-- #是占位符 -->
+		insert into departments(department_id,department_name,manager_id,location_id)
+		values(#{department_id},#{department_name},#{manager_id},#{location_id})
+	</insert>
+	
+	<!-- 向数据库增加一条数据，department_id是使用序列当中的值 -->
+	<insert id="insertDept1" parameterType="com.mybatis.entity.Department">
+		<!--keyProperty:取出来的数据，映射到POJO(对象)的哪一个属性上 
+			resultType：执行语句后返回的数据类型
+			order：指实在insert执行之前取数据还是执行之后取数据。
+				oracle的序列是before，mySQL的自增长类型，要设定成after
+			注意：取oracle序列时，table名固定为dual
+				DEPARTMENTS_SEQ.nextval：取DEPARTMENTS_SEQ序列的下一个值
+		 -->
+		<selectKey keyProperty="department_id" resultType="int" order="BEFORE">
+			select DEPARTMENTS_SEQ.nextval from dual
+		</selectKey>
+		insert into departments(department_id,department_name,manager_id,location_id)
+		values(#{department_id},#{department_name},#{manager_id},#{location_id})
+	</insert>
+	
+	<!-- 向数据库增加一条数据
+			如果数据库里不存在数据，department_id为1
+			如果数据库里存在数据，department_id为max(department_id)
+	 -->
+	<insert id="insertDept2" parameterType="com.mybatis.entity.Department">
+
+		<selectKey keyProperty="department_id" resultType="int" order="BEFORE">
+			<!-- NVL2(E1,E2,E3)E1位null，返回E3，不为null，返回E2 -->
+			select NVL2(max(department_id),max(department_id)+1,1) from departments
+		</selectKey>
+		insert into departments(department_id,department_name,manager_id,location_id)
+		values(#{department_id},#{department_name},#{manager_id},#{location_id})
+	</insert>
+	
+	<!-- 模糊检索 -->
+	<!-- 
+	   #{}:占位符:可以防止SQL侵入， 它可以进行类型转换  （java-jdbc）       
+		         可以传递基本类型，也可以传递POJO
+		         #{department_name} ==> "abc" 
+		         传基本类型时，它可以是变量名，也可以是值    	      
+	    ${}:拼接SQL:无法防止SQL侵入,不进行类型转换
+		        可以传递基本类型，也可以传递POJO
+		        #{department_name} ==> abc 
+		        传递基本类型的时候，只能是值，不能是变量      
+		   常用场合：1：select列是动态（用户指定） 2：排序列指定  3：模糊查询拼接字符串的时候  
+   -->
+	<select id="selectDeptByName" parameterType="com.mybatis.entity.Department" resultType="com.mybatis.entity.Department">
+		select * from departments where department_name like '%${department_name}%'
+	</select>
+	
+	<select id="selectDeptByName1" parameterType="string" resultType="com.mybatis.entity.Department">
+		select * from departments where department_name like #{dept_name}
+	</select>
+	
+	<!-- 按照指定排序方式读取数据 -->
+ 	<select id="selectDeptOrdered" parameterType="com.mybatis.entity.Department" resultType="com.mybatis.entity.Department">
+  		select * from  Departments order by ${orderNum}
+  	</select>
+  	
+  	<!-- 取前五条数据 -->
+  	<!--  <![CDATA[ SQL内容 ]]>  描述那些不应该由xml解析的片段（内容） >, >=,<,<=    -->
+  	<select id="selectTop5" parameterType="com.mybatis.entity.Department" resultType="com.mybatis.entity.Department">
+  		<![CDATA[ select * from  Departments  where rownum < 6]]>
+  	</select>
+  	
+  	<!-- 读取数据行数 -->
+  	<select id="selectCnt" resultType="int">
+  		select NVL(count(department_id),0) from departments
+  	</select>
+  	
+  	<!-- 修改更新数据 -->
+  	<update id="updateDept" parameterType="com.mybatis.entity.Department">
+  		update departments set department_name = #{department_name}
+  								,location_id = #{location_id}
+  		where department_id = #{department_id}
+  	</update>
+  	
+  	<!-- 删除数据 -->
+  	<delete id="deleteDept" parameterType="com.mybatis.entity.Department">
+  		delete  from departments where department_id = #{department_id}
+  	</delete>
+  	
+  	<delete id="deleteDept1" parameterType="int">
+  		delete  from departments where department_id = #{department_id}
+  	</delete>
+	
+</mapper>
+
+ 
+	

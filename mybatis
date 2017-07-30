@@ -1,0 +1,23 @@
+1)配置文件（上下文文件  config）
+2）mapper（映射器的一部分）
+	主要是一些sql，tag，（select，insert，update，delete）
+	id，
+3）创建的mapper，要在config里面配置
+4）测试
+	创建sqlSessionFactory
+	sqlSession
+		insert，update，select（selectOne，selectList）delete
+		insert，update，delete以后要提交事务
+	最后关闭sqlSession
+	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+动态代理：
+	1：创建POJO
+	2：实现Dao接口
+	3：配置Mapper.xml文件
+	4：配置Config文件
+	5：testor
+
+
+

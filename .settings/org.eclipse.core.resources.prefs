@@ -1,0 +1,15 @@
+eclipse.preferences.version=1
+encoding//src/com/mybatis/Session/MySqlSessionFactory.java=UTF-8
+encoding//src/com/mybatis/dao/EmployeeDao.java=UTF-8
+encoding//src/com/mybatis/dao/LocationDao.java=UTF-8
+encoding//src/com/mybatis/entity/Department.java=UTF-8
+encoding//src/com/mybatis/mapper/DepartmentMapper.xml=UTF-8
+encoding//src/com/mybatis/mapper/EmployeeMapper.java=UTF-8
+encoding//src/com/mybatis/mapper/EmployeeMapper.xml=UTF-8
+encoding//src/com/mybatis/mapper/LocationMapper.xml=UTF-8
+encoding//src/com/mybatis/testor/day0523/Department0523.java=UTF-8
+encoding//src/com/mybatis/testor/day0523/DepartmentTestor.java=UTF-8
+encoding//src/com/mybatis/testor/day0523/Employee0523.java=UTF-8
+encoding//src/com/mybatis/testor/day0523/Location0523.java=UTF-8
+encoding//src/com/mybatis/testor/day0524/Employee0524.java=UTF-8
+encoding/<project>=UTF-8

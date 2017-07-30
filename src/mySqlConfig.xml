@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<!-- 这是mybatis的上下文环境，类似于web程序中的web.xml -->
+<!-- configuration是根节点 -->
+<configuration>
+<!-- 配置 properties文件-->
+<properties resource = "jdbc.properties"></properties>
+	<!-- 定义别名， 等号两边不能加空格
+	 	type里面全类名，alias：别名，里名称随便起，一般是类名的小写
+	 -->
+	<typeAliases>
+		<typeAlias type="com.mybatis.entity.Employee" alias="employee"/>
+		<typeAlias type="com.mybatis.entity.Department" alias="department"/>
+		
+	</typeAliases>
+	
+	<!-- <settings>
+		<setting name="lazyLoadingEnabled" value="true"/>
+		<setting name="aggrssiveLazyLoading" value="true"/>
+	</settings>
+ -->
+<!-- environments 用于配置数据源信息，包括连接池、事务属性等。 -->
+<environments default="development">
+	<environment id="development">
+		<!-- 把事务交给jdbc -->
+		<transactionManager type="JDBC">
+			<property name="autoCommmit" value="true"/>
+		</transactionManager>
+		<!-- 配置事务管理器和数据源 
+			UNPOOLED：不使用数据库连接池（每次都需要链接，即一般不用）
+			POOLED：使用数据库连接池（推荐使用）
+			JNDI:JNDI数据源时使用
+		-->
+		<dataSource type="POOLED">
+			<property name="driver" value="${driver}"/>
+			<property name="url" value="${url}"/>
+			<property name="username" value="${username}"/>
+			<property name="password" value="${password}"/>
+			<!-- 在任意时间可存在的活动（也就是正在使用）链接数量
+				value=4：一开始就创建了四个链接以供同时使用
+				value的值一般由架构师决定 -->
+			<property name="poolMaximumActiveConnections" value="4"/>
+		</dataSource>
+	</environment>
+</environments>
+
+<!-- 两种环境配置方式 -->
+<!-- <environments default="development">
+	<environment id="development">
+		把事务交给jdbc
+		<transactionManager type="JDBC"></transactionManager>
+		配置事务管理器和数据源
+		<dataSource type="POOLED">
+		    <property name="driver" value="oracle.jdbc.driver.OracleDriver"/>
+			<property name="url" value="jdbc:oracle:thin:@127.0.0.1:1521:xe"/>
+			<property name="username" value="hr"/>
+			<property name="password" value="156517"/>
+		</dataSource>
+	</environment>
+</environments> -->
+
+<mappers>
+	<!-- 定义映射文件 -->
+	<!-- resource：指定mapper文件的源 -->
+	<mapper resource="com/mybatis/mapper/DepartmentMapper.xml"/>
+	<mapper resource="com/mybatis/mapper/LocationMapper.xml"/>
+	<mapper resource="com/mybatis/mapper/EmployeeMapper.xml"/> 
+	<mapper resource="com/mybatis/mapper/newDepartmentMapper.xml"/> 
+	
+	<!-- 用file定义 -->
+	<!--  <mapper url="file:///E:\learn\mybatis\src\com\mybatis\mapper\EmployeeMapper.xml"/>
+	-->
+	<!-- 接口和mapper.xml需要在同一个包中，且名字相同 -->
+	 <!-- <mapper class="com.mybatis.mapper.EmployeeMapper"/> --> 
+	 
+	<!--  <package name="com.mybatis.mapper"/>  -->
+	 
+	 <!-- 实际工作中
+	 	resource:比较明确
+	 	package：省事
+	  -->
+
+</mappers>
+</configuration>

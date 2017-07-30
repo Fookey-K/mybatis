@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mybatis.dao.DepartmentDao"> 
+
+	<!-- parameterType:
+		传的是基本类型：直接用变量名或值
+		传的是POJO：直接使用POJO 的属性
+		传的是POJO的包装类型，使用包装类型的property.property
+			selectDeptInfo中，department，location是DepLocation中的属性
+			department_name是department对应对象的属性		
+	 -->
+
+	<!-- 根据部门名称或者location所在的街道查找 -->
+	<select id="selectDeptInfo" parameterType="com.mybatis.entity.DepLocation"
+		resultType="department">
+		select dept.* from departments dept,Locations
+		where dept.location_id = locations.location_id
+		and (dept.department_name like '%${department.department_name}%'
+				or locations.street_address like '%${location.street_address}%' 
+			)
+	</select>
+	
+	<!-- <select id="selectDeptHash" parameterType="hashMap" resultType="department">
+		select * from departments
+		where department_name like '%${departmentName}%'
+			or location_id=#{location_id}
+	</select>
+	 -->
+	 <!-- 一对多查询 -->
+	 <resultMap type="department" id="Dep">
+	 	<id column="department_id" property="department_id"/>
+		<result column="department_name" property="department_name"/>
+		<result column="location_id" property="location_id"/>	
+		<!-- 一对多关系中 -->
+		<collection property="empList" ofType="employee">
+			<id column="employee_id" property="employee_id"/>
+			<result column="first_name" property="first_name"/>
+			<result column="last_name" property="last_name"/>
+			<result column="salary" property="salary"/> 	
+		</collection>		
+	 </resultMap>
+	 
+	 <select id="selectByDept" parameterType="int" resultMap="Dep">
+	 	select emp.employee_id,
+	 			emp.first_name,
+	 			emp.last_name,
+	 			dept.department_id,
+	 			dept.department_name,
+	 			dept.location_id		
+	 	from employees emp,departments dept
+	 	where emp.department_id = dept.department_id 	
+	 		and emp.department_id = #{id}
+	 </select>
+
+  
+</mapper>

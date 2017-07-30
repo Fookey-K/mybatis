@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- 用dao接口编程时，namespace必须和对应的Mapper接口的全类名一致 -->
+<mapper namespace="com.mybatis.dao.LocationDao">
+	<!-- 查找 -->
+	<select id="selectLocationById" parameterType="int" resultType="com.mybatis.entity.Location">
+		select * from Locations where location_id = #{location_id}
+	</select>
+	
+	<!-- 插入 -->
+	<insert id="insertLocation" parameterType="com.mybatis.entity.Location">
+		insert into Locations (location_id,street_address,postal_code,city,state_province,country_id)
+		values(#{location_id},
+				#{street_address},
+				#{postal_code},
+				#{city},
+				#{state_province},
+				#{country_id})
+	</insert>
+	<!-- 对于数据库可以为null的字段，可以指定插入数据类型 -->
+	<!-- <insert id="insertLocation" parameterType="com.mybatis.entity.Location">
+		insert into Locations (location_id,street_address,postal_code,city,state_province,country_id)
+		values(#{location_id},
+				#{street_address,jdbcType=VARCHAR},
+				#{postal_code},
+				#{city},
+				#{state_province},
+				#{country_id})
+	</insert> -->
+	
+	<!-- 修改数据 -->
+	<update id="updateLocation">
+		update Locations set street_address=#{street_address},
+							state_province=#{state_province}
+		where location_id = #{location_id}
+	</update>
+	
+	<!-- 删除数据 -->
+	<delete id="deleteLocation">
+		delete Locations 
+		where location_id = #{location_id}
+	</delete>
+
+</mapper>
